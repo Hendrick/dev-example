@@ -1,0 +1,47 @@
+version: "3"
+services:
+    docker-db:
+      platform: linux/arm64/v8
+      image: "postgres:15-alpine3.17"
+      container_name: db
+      ports:
+          - "5432:5432"
+      environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: deployinc
+      networks:
+        default:
+          ipv4_address: 172.20.0.2
+
+    web:
+        image: dev-example
+        container_name: dev-example
+        build: .
+        environment:
+            RAILS_ROOT: /opt/dev-example
+        volumes:
+            - .:/opt/dev-example
+        command: sh /opt/dev-example/script/docker-start.sh
+        depends_on:
+            - docker-db
+        tty: true
+        ports:
+            - "3000:3000"
+        deploy:
+            resources:
+                limits:
+                    cpus: '1'
+                    memory: 3G
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+        networks:
+          default:
+            ipv4_address: 172.20.0.7
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
