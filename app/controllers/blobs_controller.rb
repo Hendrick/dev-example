@@ -11,6 +11,7 @@ class BlobsController < ApplicationController
     if File.write("received_files/" + filename, JSON.pretty_generate(json))
       json["document_id"] = uuid
       json["document_filename"] = filename
+      AdjustedBankTransaction.new(params["blob"].tempfile,uuid).call
       render json: json, status: 201
     else
       render json: {error: "unprocessible_entry"}, status: 422
