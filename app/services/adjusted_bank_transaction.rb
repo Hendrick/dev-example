@@ -1,4 +1,5 @@
 class AdjustedBankTransaction
+  require 'csv'
   def initialize(file, filename)
     @file = file
     @filename = filename
